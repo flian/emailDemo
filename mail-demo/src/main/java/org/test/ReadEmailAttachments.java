@@ -134,7 +134,7 @@ public class ReadEmailAttachments {
         //password
         String password = "hybzqughxqrtxxhk";
 
-        String saveDirectory = "/home/sdsf";
+        String saveDirectory = "c:/tmp/Attachments";
 
         ReadEmailAttachments receiver = new ReadEmailAttachments();
         receiver.setSaveDirectory(saveDirectory);
