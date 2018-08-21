@@ -4,6 +4,7 @@ import javax.mail.*;
 import javax.mail.internet.MimeBodyPart;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Properties;
 
 /**
@@ -27,6 +28,16 @@ public class ReadEmailAttachments {
      */
     public void setSaveDirectory(String dir) {
         this.saveDirectory = dir;
+    }
+
+    private String decodeFileName(String originNameStr) {
+        //测试的时候有的name字符串是=?ISO-8859-1?B?YWJjKS5qcGc=?=
+        if (originNameStr.contains("?=")){
+            String base64 =originNameStr.split("\\?")[3];
+            //FIXME 如果是中文附件，需要更多处理
+            return new String(Base64.getDecoder().decode(base64));
+        }
+        return originNameStr;
     }
 
     /**
@@ -61,7 +72,9 @@ public class ReadEmailAttachments {
             folderInbox.open(Folder.READ_ONLY);
 
             // fetches new messages from server
-            Message[] arrayMessages = folderInbox.getMessages();
+            // read all email
+           Message[] arrayMessages = folderInbox.getMessages();
+
 
             for (int i = 0; i < arrayMessages.length; i++) {
                 Message message = arrayMessages[i];
@@ -84,7 +97,7 @@ public class ReadEmailAttachments {
                         MimeBodyPart part = (MimeBodyPart) multiPart.getBodyPart(partCount);
                         if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
                             // this part is attachment
-                            String fileName = part.getFileName();
+                            String fileName = decodeFileName(part.getFileName());
                             attachFiles += fileName + ", ";
                             part.saveFile(saveDirectory + File.separator + fileName);
                         } else {
